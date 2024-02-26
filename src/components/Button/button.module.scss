@@ -1,0 +1,64 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.button {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 10px 22px;
+  background-color: $green;
+  color: $white;
+  font-size: 16px;
+  line-height: 20px;
+  transition: all 0.3s ease;
+  margin-right: 32px;
+
+  @include text-ellipsis;
+  @include font-medium;
+
+  svg {
+    font-size: 24px;
+    margin-right: 10px;
+  }
+
+  &:hover {
+    background-color: $green-hover;
+  }
+
+  &.outline {
+    border-color: $green;
+    background-color: transparent;
+    color: $green;
+
+    &:hover {
+      border-color: $green-hover;
+      color: $green-hover;
+    }
+  }
+
+  &.normal {
+    height: 40px;
+  }
+
+  &.large {
+    height: 52px;
+    font-size: 22px;
+    min-width: 220px;
+    @include font-regular;
+
+    svg {
+      font-size: 28px;
+    }
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+}
+
+.title {
+  padding-top: 1px;
+}

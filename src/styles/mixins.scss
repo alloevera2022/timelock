@@ -1,0 +1,29 @@
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin font-regular {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@mixin font-medium {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+@mixin font-semibold {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+@mixin font-bold {
+  font-family: "Hind Siliguri", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}

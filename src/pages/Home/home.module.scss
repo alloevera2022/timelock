@@ -1,0 +1,19 @@
+@import "../../styles/mixins";
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button {
+  margin-top: 16px;
+}
+
+.landing {
+  text-transform: uppercase;
+  text-transform: uppercase;
+  font-size: 40px;
+  margin-top: 168px;
+  @include font-semibold;
+}

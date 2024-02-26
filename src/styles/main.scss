@@ -1,0 +1,139 @@
+@import "variables";
+@import "mixins";
+
+body {
+  background-color: $bg-color;
+  color: $black;
+  line-height: normal;
+  @include font-regular;
+}
+
+.page {
+  padding: 52px 0 68px;
+}
+
+h1 {
+  text-transform: uppercase;
+  font-size: 40px;
+  margin-top: 16px;
+  margin-bottom: 52px;
+  letter-spacing: 1px;
+  @include font-semibold;
+}
+
+h2 {
+  letter-spacing: 1px;
+}
+
+h3 {
+  font-size: 32px;
+  letter-spacing: 1px;
+  @include font-medium;
+}
+
+.input {
+  background-color: $white;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $black;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  padding: 10px 12px;
+  height: 40px;
+
+  &:focus, &:focus-visible, &:focus-within {
+    outline: none;
+    border-color: $green;
+  }
+
+  &__wide {
+    width: 100%;
+  }
+
+  &[disabled] {
+    background-color: $gray-disabled;
+    color: $gray;
+  }
+}
+
+.input__title {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.input__block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 32px;
+}
+
+.radio {
+  display: flex;
+  max-width: max-content;
+  margin-right: 12px;
+
+  label {
+    background-color: $white;
+    border: 1px solid $border;
+    border-radius: 6px;
+    color: $black;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    padding: 10px 12px;
+    height: 32px;
+    max-width: max-content;
+    &:hover {
+      border-color: $green-hover;
+      color: $green-hover
+    }
+  }
+
+  input[type='radio'] {
+    display: none;
+  }
+  input[type='radio']:checked {
+    &~label {
+      border-color: $green;
+      color: $green;
+    }
+  }
+
+  input[type='radio'][disabled] {
+    &~label {
+      border-color: $border;
+      color: $gray;
+    }
+  }
+
+  input[type='radio'][disabled]:checked {
+    &~label {
+      border-color: $green-disabled;
+      color: $green-disabled;
+    }
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: $lg-breakpoint) {
+  .page {
+    padding: 32px 0 48px;
+  }
+}
+
+@media (max-width: $md-breakpoint) {
+  .page {
+    padding: 16px 0 24px;
+  }
+}
+
+@media (max-width: $sm-breakpoint) {
+  .radio {
+    max-width: 30%;
+  }
+}

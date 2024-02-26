@@ -44,3 +44,48 @@
     margin-right: 0;
   }
 }
+
+@media (max-width: $lg-breakpoint) {
+  .form {
+    padding: 16px 14px;
+  }
+  .title {
+    font-size: 22px;
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: $md-breakpoint) {
+  .formButton {
+    max-width: 100%;
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: $sm-breakpoint) {
+  .inputMobile {
+    margin-bottom: 16px;
+  }
+
+  .yearSelect {
+    max-width: 184px;
+  }
+
+  .radioBlock {
+    max-width: 100%;
+    justify-content: space-between;
+  }
+
+  .formButtons {
+    flex-direction: column;
+  }
+
+  .formButton {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+}

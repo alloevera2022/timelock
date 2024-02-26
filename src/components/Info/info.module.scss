@@ -1,0 +1,59 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.wrapper {
+  background-color: $green-bg;
+  border: 1px solid $green-border;
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 8px 35px 1px rgba(0, 0, 0, 0.06)
+}
+
+.icon {
+  margin-bottom: 10px;
+  svg {
+    color: $green;
+    font-size: 64px;
+  }
+}
+
+.text {
+  font-size: 22px;
+}
+
+.token {
+  text-transform: uppercase;
+}
+
+@media (max-width: $xl-breakpoint) {
+  .text {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: $lg-breakpoint) {
+  .wrapper {
+    margin-bottom: 24px;
+    padding: 16px 14px;
+    margin-top: 16px;
+  }
+
+  .text {
+    font-size: 16px;
+  }
+
+  .icon {
+    margin-bottom: 8px;
+    svg {
+      font-size: 48px;
+    }
+  }
+}
+
+@media (max-width: 990px) {
+  .wrapper {
+    margin-top: 0;
+  }
+}
