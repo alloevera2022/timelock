@@ -1,0 +1,46 @@
+@import "../../styles/variables";
+@import "../../styles/mixins";
+
+.form {
+  background-color: $white;
+  border-radius: 20px;
+  box-shadow: 8px 8px 36px 1px rgba(0, 0, 0, 0.06);
+  padding: 36px 32px 80px;
+}
+
+.title {
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+}
+
+.radioBlock {
+  max-width: 214px;
+}
+
+.yearSelect {
+  max-width: 214px;
+}
+.total {
+  color: $gray;
+  font-size: 14px;
+}
+
+.token {
+  text-transform: uppercase;
+}
+
+.formButtons {
+  display: flex;
+}
+
+.formButton {
+  margin-right: 30px;
+  &:last-of-type {
+    margin-right: 0;
+  }
+}
