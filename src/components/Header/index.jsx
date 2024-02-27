@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { MdControlPoint } from "react-icons/md";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useMediaQuery } from "react-responsive";
 import Button from "../Button";
 import styles from './header.module.scss';
@@ -36,7 +36,7 @@ const Header = (props) => {
               <>
                 <Button
                   title={'Create for 1 SOL'}
-                  icon={<MdControlPoint/>}
+                  icon={<AiOutlinePlusCircle />}
                   onClick={() => alert('1 SOL created')}
                   className={styles.createBtn}
                 />

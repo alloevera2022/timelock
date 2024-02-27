@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Select, { components } from 'react-select';
-import { MdHorizontalRule } from "react-icons/md";
-import { MdAdd } from "react-icons/md";
+import { BiMinus, BiPlus } from "react-icons/bi";
 import styles from './custom-select.module.scss';
 const CaretDownIcon = ({disabled}) => {
   return <div className={`${styles.arrow} ${disabled ? styles.disabled : ''}`}></div>;
@@ -98,7 +97,7 @@ const CustomSelect = (
     return (
       <div className={styles.wrapper}>
         <button disabled={isDisabled} className={styles.button} onClick={(e) => handlePrev(e)}>
-          <MdHorizontalRule />
+          <BiMinus />
         </button>
         <Select
           {...field}
@@ -114,7 +113,7 @@ const CustomSelect = (
           styles={styleWithButtons}
         />
         <button disabled={isDisabled} className={styles.button} onClick={(e) => handleNext(e)}>
-          <MdAdd />
+          <BiPlus />
         </button>
       </div>
     )

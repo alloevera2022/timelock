@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useForm, useWatch, Controller } from "react-hook-form"
-import { MdCheckCircleOutline } from "react-icons/md";
+import { useForm, useWatch, Controller } from "react-hook-form";
+import { AiOutlineCheckCircle } from "react-icons/ai";
+import { PERCENTS, TOKENS, MONTHS, YEARS } from './data';
+import { useMediaQuery } from "react-responsive";
 import Button from "../../components/Button";
 import CustomSelect from "../../components/CustomSelect";
 import Loader from "../../components/Loader";
 import Info from "../../components/Info";
 import styles from './create.module.scss';
-import { PERCENTS, TOKENS, MONTHS, YEARS } from './data';
-import { useMediaQuery } from "react-responsive";
 
 // get array of days depending on month and year. returns correct object for select
 const getDaysInMonth = (monthsList, currentMonth, currentYear) => {
@@ -245,7 +245,7 @@ const Create = () => {
                 </div> :
 
                 <Button
-                  icon={<MdCheckCircleOutline/>}
+                  icon={<AiOutlineCheckCircle />}
                 >
                   {edit ? 'Extend' : 'Create'} for 1 <span className={styles.token}>{currentToken}</span>
                 </Button>

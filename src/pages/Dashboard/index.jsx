@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import { MdContentCopy, MdDeleteOutline, MdInfoOutline, MdOutlineCreate } from "react-icons/md";
 import styles from "./dashboard.module.scss";
 import Button from "../../components/Button";
 import { useMediaQuery } from "react-responsive";
+import {BiCopy, BiInfoCircle, BiPencil, BiTrashAlt} from "react-icons/bi";
 
 const DATA = [
   {
@@ -119,7 +119,7 @@ const Dashboard = () => {
                       <div className={styles.mobileRow}>
                         <div className={styles.wallet}>{wallet}</div>
                         <div className={styles.button}>
-                          <button className={styles.iconBtn}><MdContentCopy /></button>
+                          <button className={styles.iconBtn}><BiCopy /></button>
                         </div>
                       </div>
                     </div>
@@ -142,20 +142,20 @@ const Dashboard = () => {
                           <div className={styles.mobileCol}>
                             <div className={styles.button}>
                               <button className={styles.iconBtn}>
-                                <MdOutlineCreate />
+                                <BiPencil />
                               </button>
                             </div>
                           </div>
                           <div className={styles.mobileCol}>
                             <div className={styles.button}>
                               <button className={styles.iconBtn}>
-                                <MdDeleteOutline />
+                                <BiTrashAlt />
                               </button>
                             </div>
                           </div>
                         </div>
                         <div className={styles.tooltip}>
-                          <MdInfoOutline className={styles.icon}/>
+                          <BiInfoCircle className={styles.icon} />
                           <span className={styles.title}>0.5 SOL</span>
                         </div>
                       </>

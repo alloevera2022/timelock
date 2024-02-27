@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from "../../components/Button";
-import { MdControlPoint } from "react-icons/md";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import styles from './home.module.scss';
 
 const Home = () => {
@@ -15,7 +15,7 @@ const Home = () => {
               to={'/create'}
               title={'Create SOL'}
               size={'large'}
-              icon={<MdControlPoint/>}
+              icon={<AiOutlinePlusCircle />}
               className={styles.button}
             />
             <h2 className={styles.landing}>Landing</h2>
