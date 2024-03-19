@@ -4,6 +4,7 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import styles from './home.module.scss';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import TableOfAssets from "../../components/TableOfAssets";
 
 const Home = () => {
   const { connection } = useConnection();
@@ -16,6 +17,7 @@ const Home = () => {
             <h1>Lock the token for the time you need</h1>
 
             <WalletMultiButton></WalletMultiButton>
+            <TableOfAssets></TableOfAssets>
             
             <Button
               type={'innerLink'}
