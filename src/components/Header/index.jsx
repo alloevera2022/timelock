@@ -4,8 +4,12 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useMediaQuery } from "react-responsive";
 import Button from "../Button";
 import styles from './header.module.scss';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 const Header = (props) => {
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
   const [active, setActive] = useState(false);
   const isTablet = useMediaQuery({ maxDeviceWidth: 992 });
   const location = useLocation();
@@ -26,7 +30,9 @@ const Header = (props) => {
             <NavLink className={({ isActive }) => (isActive ? `${styles.navLink} ${styles.navActive}` : `${styles.navLink}`)} to={'/api'}>API</NavLink>
           </nav>
           <div className={styles.buttons}>
-            { location.pathname === '/' ? (
+          <WalletMultiButton></WalletMultiButton>
+            {/* { location.pathname === '/' ? (
+              
               <Button
                 type={'link'}
                 to={'https://google.com'}
@@ -45,7 +51,7 @@ const Header = (props) => {
                   onClick={() => alert('open 0x3A13...e4bc')}
                 />
               </>
-            )}
+            )} */}
           </div>
         </div>
         <button
