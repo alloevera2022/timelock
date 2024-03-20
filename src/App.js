@@ -7,18 +7,13 @@ import React, { useMemo } from 'react';
 
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
-  GlowWalletAdapter,
   LedgerWalletAdapter,
   PhantomWalletAdapter,
-  SlopeWalletAdapter,
   SolflareWalletAdapter,
-  SolletExtensionWalletAdapter,
-  SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
 
 
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -26,9 +21,9 @@ require('@solana/wallet-adapter-react-ui/styles.css');
 function App() {
   // you can use Mainnet, Devnet or Testnet here
   const solNetwork = WalletAdapterNetwork.Mainnet;
-  const endpoint = useMemo(() => clusterApiUrl(solNetwork), [solNetwork]);
+  // const endpoint = useMemo(() => clusterApiUrl(solNetwork), [solNetwork]);
   // const solNetwork = WalletAdapterNetwork.Mainnet;
-  // const endpoint = 'https://mainnet.helius-rpc.com/?api-key=59dcc64e-6eaa-4d48-b97e-407c2792cb52'; // useMemo(() => clusterApiUrl(solNetwork), [solNetwork]);
+  const endpoint = 'https://api.mainnet-beta.solana.com'; // useMemo(() => clusterApiUrl(solNetwork), [solNetwork]);
   // initialise all the wallets you want to use
   const wallets = useMemo(
     () => [
