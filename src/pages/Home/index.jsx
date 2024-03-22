@@ -22,7 +22,7 @@ const Home = () => {
             <Button
               type={'innerLink'}
               to={'/create'}
-              title={'Create SOL'}
+              title={'Create LOCK'}
               size={'large'}
               icon={<AiOutlinePlusCircle />}
               className={styles.button}

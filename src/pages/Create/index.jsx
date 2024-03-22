@@ -1,46 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { AiOutlineCheckCircle } from "react-icons/ai";
-import { PERCENTS, TOKENS, MONTHS, YEARS } from './data';
-import { useMediaQuery } from "react-responsive";
-import Button from "../../components/Button";
+import { PERCENTS, MONTHS, YEARS } from './data';
+import { useTableOfAssets } from '../../components/TableOfAssets';
 import CustomSelect from "../../components/CustomSelect";
+import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 import Info from "../../components/Info";
 import styles from './create.module.scss';
-
-// get array of days depending on month and year. returns correct object for select
-const getDaysInMonth = (monthsList, currentMonth, currentYear) => {
-  const monthIndex = monthsList.findIndex(month => month.value === currentMonth)
-
-  const date = new Date(currentYear, monthIndex, 1);
-  const days = [];
-  while (date.getMonth() === monthIndex) {
-    days.push(new Date(date).getDate());
-    date.setDate(date.getDate() + 1);
-  }
-  return days.map(day => {
-    return {
-      value: day,
-      label: day
-    }
-  });
-}
-
-//scroll to top when blocked token and mobile
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-};
+import { useMediaQuery } from "react-responsive";
 
 const Create = () => {
-  const [days, setDays] = useState([{label: 1, value: 1}]);
+  const { names } = useTableOfAssets();
+  const [days, setDays] = useState([{ label: 1, value: 1 }]);
   const [monthsList, setMonthsList] = useState(MONTHS);
   const [yearsList, setYearsList] = useState(YEARS);
-  const [total, setTotal] = useState(10000)
-  const [currentToken, setCurrentToken] = useState(TOKENS[0].value);
+  const [currentToken, setCurrentToken] = useState(names.length > 0 ? names[0].value : '');
   const [edit, setEdit] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [formData, setFormData] = useState({});
+  const [total, setTotal] = useState(0);
 
   const isMobile = useMediaQuery({ maxDeviceWidth: 992 });
 
@@ -50,25 +29,30 @@ const Create = () => {
     setValue,
     control
   } = useForm({
-    // set default params to form on page load
     defaultValues: {
       how_much: '5000',
       how_much_percents: '100%',
-      token: TOKENS[0].value,
+      token: names.length > 0 ? names[0].value : '',
       day: days[0].value,
       month: monthsList[0].value,
       year: yearsList[0].value
     }
   });
+
   const watchAll = useWatch({ control });
 
-  // set months and years to state
   useEffect(() => {
     setMonthsList(MONTHS);
     setYearsList(YEARS);
   }, []);
 
-  // set days depending on months and year
+
+  useEffect(() => {
+
+    setValue("how_much", currentToken);
+  }, [currentToken]);
+  
+
   useEffect(() => {
     const currentMonth = watchAll.month ? watchAll.month : monthsList[0].value;
     const currentYear = watchAll.year ? watchAll.year : yearsList[0].value;
@@ -77,8 +61,7 @@ const Create = () => {
       monthsList,
       currentMonth,
       currentYear
-      )
-    );
+    ));
 
     setCurrentToken(watchAll.token);
   }, [watchAll]);
@@ -94,16 +77,35 @@ const Create = () => {
     e.preventDefault();
     setIsBlocked(false);
     setEdit(true);
-  }
+  };
+
   const deleteToken = (e) => {
     e.preventDefault();
     window.location.reload();
-  }
+  };
 
-  // set loader if no data
-  if (days.length < 1 && monthsList.length < 1 && yearsList.length < 1) {
+  const getDaysInMonth = (monthsList, currentMonth, currentYear) => {
+    const monthIndex = monthsList.findIndex(month => month.value === currentMonth)
+    const date = new Date(currentYear, monthIndex, 1);
+    const days = [];
+    while (date.getMonth() === monthIndex) {
+      days.push(new Date(date).getDate());
+      date.setDate(date.getDate() + 1);
+    }
+    return days.map(day => ({
+      value: day,
+      label: day
+    }));
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
+
+  if (names.length === 0 || days.length === 0 || monthsList.length === 0 || yearsList.length === 0) {
     return <Loader />;
   }
+
 
   return (
     <div className='page'>
@@ -118,19 +120,18 @@ const Create = () => {
                 <div className="row">
                   <div className="col-lg-12 col-sm-7 d-flex space-between">
                     <label className='input__title'>Choose a token</label>
-                    <span className={`${styles.total} mobile`}>Total {total}</span>
+                    <span className={`${styles.total} mobile`}>Total {currentToken}</span>
                   </div>
                 </div>
-
                 <div className='row'>
                   <div className='col-lg-7 col-sm-7'>
                     <Controller
                       control={control}
                       name="token"
-                      defaultValue={TOKENS[0].value}
+                      defaultValue={names[0].label}
                       render={({ field }) => (
                         <CustomSelect
-                          options={TOKENS}
+                          options={names}
                           icons={true}
                           field={field}
                           setValue={setValue}
@@ -141,10 +142,11 @@ const Create = () => {
                     />
                   </div>
                   <div className='col-lg-5 d-flex middle-xs desktop'>
-                    <span className={styles.total}>Total {total}</span>
+                    <span className={styles.total}>Total {currentToken}</span>
                   </div>
                 </div>
               </div>
+
 
               <div className='input__block'>
                 <label className='input__title' htmlFor={'how_much'}>How much to block?</label>
@@ -247,7 +249,7 @@ const Create = () => {
                 <Button
                   icon={<AiOutlineCheckCircle />}
                 >
-                  {edit ? 'Extend' : 'Create'} for 1 <span className={styles.token}>{currentToken}</span>
+                  {edit ? 'Extend' : 'Create'} for {currentToken}<span className={styles.token}></span>
                 </Button>
               }
             </form>

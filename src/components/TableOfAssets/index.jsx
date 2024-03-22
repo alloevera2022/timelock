@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const url = `https://mainnet.helius-rpc.com/?api-key=59dcc64e-6eaa-4d48-b97e-407c2792cb52`;
-const imageUrl = 'https://cdn.helius-rpc.com/cdn-cgi/image//https://black-central-louse-585.mypinata.cloud/ipfs/Qmcna9Bvbubpt2HpoYowTmCpkmVierTegYK9t2XvqnXmau';
 
-const TableOfAssets = () => {
+export const useTableOfAssets = () => {
     const { publicKey: userWalletPublicKey } = useWallet();
     const [error, setError] = useState(null);
     const [names, setNames] = useState([]);
@@ -29,17 +28,15 @@ const TableOfAssets = () => {
                     })
                 });
                 const { result } = await response.json();
-                console.log(result.items);
                 const newNames = result.items.reduce((acc, el) => {
                     if (el.interface === "FungibleToken") {
-                       
-                        let name = el.content.metadata.name !== undefined ? el.content.metadata.name : el.id;
-                        if (name.length > 18) {
-                            name = `${name[0]}${name[2]}${name[2]}${name[3]}...${name[name.length - 4]}${name[name.length - 3]}${name[name.length - 2]}${name[name.length - 1]}`
+                        let label = el.content.metadata.name !== undefined ? el.content.metadata.name : el.id;
+                        if (label.length > 18) {
+                            label = `${label[0]}${label[2]}${label[2]}${label[3]}...${label[label.length - 4]}${label[label.length - 3]}${label[label.length - 2]}${label[label.length - 1]}`
                         }
-                        const balanceInAbsolute = el.token_info.balance / 10 ** el.token_info.decimals;
-                        const img = el.content.links.image !== undefined ? el.content.links.image : 'https://png.pngtree.com/png-clipart/20190614/original/pngtree-%EF%BB%BFcoin-gold-png-image_3724480.jpg'
-                        acc.push([name, balanceInAbsolute, img]);
+                        const value = el.token_info.balance / 10 ** el.token_info.decimals;
+                        const icon = el.content.links.image !== undefined ? el.content.links.image : 'https://png.pngtree.com/png-clipart/20190614/original/pngtree-%EF%BB%BFcoin-gold-png-image_3724480.jpg'
+                        acc.push({ label, value, icon });
                     }
                     return acc;
                 }, []);
@@ -47,7 +44,14 @@ const TableOfAssets = () => {
             } catch (error) { setError(error.message); }
         };
         getAssetsByOwner();
+        
     }, [userWalletPublicKey]);
+
+    return { names, error };
+};
+
+const TableOfAssets = () => {
+    const { names, error } = useTableOfAssets();
 
     if (names.length === 0) {
         return (
@@ -70,10 +74,10 @@ const TableOfAssets = () => {
                     {names.map((item, index) => (
                         <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }}>
                             <td style={{ border: '1px solid #ddd', padding: '16px', display: 'flex', alignItems: 'center'}}>
-                                <img src={item[2]} alt="Token Icon" style={{ width: '40px', height: '40px', marginRight: '10px', borderRadius: '50%' }} />
-                                {item[0]}
+                                <img src={item.icon} alt="Token Icon" style={{ width: '40px', height: '40px', marginRight: '10px', borderRadius: '50%' }} />
+                                {item.label}
                             </td>
-                            <td style={{ border: '1px solid #ddd', padding: '16px', textAlign: 'center'}}>{item[1]}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '16px', textAlign: 'center'}}>{item.value}</td>
                         </tr>
                     ))}
                 </tbody>
