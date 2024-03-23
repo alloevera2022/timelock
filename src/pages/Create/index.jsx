@@ -9,6 +9,8 @@ import Loader from "../../components/Loader";
 import Info from "../../components/Info";
 import styles from './create.module.scss';
 import { useMediaQuery } from "react-responsive";
+import { Keypair, Connection, SystemProgram, Transaction, PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const Create = () => {
   const { names } = useTableOfAssets();
@@ -19,9 +21,49 @@ const Create = () => {
   const [edit, setEdit] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [formData, setFormData] = useState({});
-  const [total, setTotal] = useState(0);
-
   const isMobile = useMediaQuery({ maxDeviceWidth: 992 });
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=59dcc64e-6eaa-4d48-b97e-407c2792cb52');
+  const { publicKey: userWalletPublicKey, sendTransaction, signTransaction, connected } = useWallet();
+  const [successLock, setSuccesLock] = useState(false);
+
+  const lockTokens = async () => {
+    // if (!depositAmount || depositAmount === 0) {
+    //     setInputError(true);
+    //     return;
+    // }
+    try {
+
+        const fromPublicKey = userWalletPublicKey;
+        // const storedAddress = keypair.publicKey.toBase58();
+        const toPublicKey = new PublicKey('9EYKVhh2rfN7yDxCq9EeTKFBcktfqSiKt4dYuq7br3zv');
+        const blockhash = await connection.getLatestBlockhash('confirmed');
+        const transaction = new Transaction({
+            recentBlockhash: blockhash.blockhash,
+            feePayer: userWalletPublicKey,
+        }).add(
+            SystemProgram.transfer({
+                fromPubkey: fromPublicKey,
+                toPubkey: toPublicKey,
+                lamports: 0.001 * 10 ** 9,
+            })
+        );
+
+        const signedTx = await signTransaction(transaction);
+        const compiledTransaction = signedTx.serialize();
+        const signature = await connection.sendRawTransaction(compiledTransaction, { preflightCommitment: 'confirmed' });
+
+        // setDepositSuccess(true);
+        // setTimeout(() => {
+        //     setDepositSuccess(false);
+        // }, 5000);
+        // setDepositAmount(null);
+
+        console.log('Транзакция успешно выполнена, подпись:', signature);
+        setSuccesLock(true); 
+    } catch (error) {
+        console.error('Ошибка транзакции:', error);
+    }
+};
 
   const {
     register,
@@ -247,16 +289,22 @@ const Create = () => {
                 </div> :
 
                 <Button
-                  icon={<AiOutlineCheckCircle />}
+                  icon={<AiOutlineCheckCircle />} onClick={() => {
+                    if (connected) {
+                        lockTokens();
+                    }
+                }}
                 >
                   {edit ? 'Extend' : 'Create'} for {currentToken}<span className={styles.token}></span>
                 </Button>
               }
             </form>
           </div>
+          {successLock && (
           <div className='col-lg-5 col-xl-6'>
-            { isBlocked && formData && <Info data={formData}/> }
+            {isBlocked && formData && <Info data={formData}/>}
           </div>
+        )}
         </div>
       </div>
     </div>
