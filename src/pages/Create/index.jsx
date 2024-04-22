@@ -8,7 +8,7 @@ import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 import Info from "../../components/Info";
 import styles from './create.module.scss';
-import Lock from './lock';
+// import Lock from './lock';
 import { useMediaQuery } from "react-responsive";
 import { Keypair, Connection, SystemProgram, Transaction, PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
