@@ -13,6 +13,7 @@ import { useMediaQuery } from "react-responsive";
 import { Keypair, Connection, SystemProgram, Transaction, PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 
+
 const Create = () => {
   const { names } = useTableOfAssets();
   const [days, setDays] = useState([{ label: 1, value: 1 }]);
@@ -208,9 +209,17 @@ const Create = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
-  if (names.length === 0 || days.length === 0 || monthsList.length === 0 || yearsList.length === 0) {
-    return <Loader />;
-  }
+ if (names.length === 0 || days.length === 0 || monthsList.length === 0 || yearsList.length === 0) {
+   return (
+    <div>
+         <Loader />
+
+
+    </div>
+
+
+  )
+ }
 
 
   return (
