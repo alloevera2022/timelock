@@ -8,6 +8,7 @@ import Button from "../../components/Button";
 import Loader from "../../components/Loader";
 import Info from "../../components/Info";
 import styles from './create.module.scss';
+import Lock from './lock';
 import { useMediaQuery } from "react-responsive";
 import { Keypair, Connection, SystemProgram, Transaction, PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -17,7 +18,16 @@ const Create = () => {
   const [days, setDays] = useState([{ label: 1, value: 1 }]);
   const [monthsList, setMonthsList] = useState(MONTHS);
   const [yearsList, setYearsList] = useState(YEARS);
-  const [currentToken, setCurrentToken] = useState(names.length > 0 ? names[0].value : '');
+
+  const [currentToken, setCurrentToken] = useState();
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [currentDecimals, setCurrentDecimals] = useState(0);
+  const [interfaceBalance, setInterfaceBalance] = useState(0);
+  const [persents, setPercents] = useState('100%');
+  const [customAmountEntered, setCustomAmountEntered] = useState(false);
+
+
+
   const [edit, setEdit] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [formData, setFormData] = useState({});
@@ -33,37 +43,37 @@ const Create = () => {
     // }
     try {
 
-        const fromPublicKey = userWalletPublicKey;
-        // const storedAddress = keypair.publicKey.toBase58();
-        const toPublicKey = new PublicKey('9EYKVhh2rfN7yDxCq9EeTKFBcktfqSiKt4dYuq7br3zv');
-        const blockhash = await connection.getLatestBlockhash('confirmed');
-        const transaction = new Transaction({
-            recentBlockhash: blockhash.blockhash,
-            feePayer: userWalletPublicKey,
-        }).add(
-            SystemProgram.transfer({
-                fromPubkey: fromPublicKey,
-                toPubkey: toPublicKey,
-                lamports: 0.001 * 10 ** 9,
-            })
-        );
+      const fromPublicKey = userWalletPublicKey;
+      // const storedAddress = keypair.publicKey.toBase58();
+      const toPublicKey = new PublicKey('9EYKVhh2rfN7yDxCq9EeTKFBcktfqSiKt4dYuq7br3zv');
+      const blockhash = await connection.getLatestBlockhash('confirmed');
+      const transaction = new Transaction({
+        recentBlockhash: blockhash.blockhash,
+        feePayer: userWalletPublicKey,
+      }).add(
+        SystemProgram.transfer({
+          fromPubkey: fromPublicKey,
+          toPubkey: toPublicKey,
+          lamports: 0.001 * 10 ** 9,
+        })
+      );
 
-        const signedTx = await signTransaction(transaction);
-        const compiledTransaction = signedTx.serialize();
-        const signature = await connection.sendRawTransaction(compiledTransaction, { preflightCommitment: 'confirmed' });
+      const signedTx = await signTransaction(transaction);
+      const compiledTransaction = signedTx.serialize();
+      const signature = await connection.sendRawTransaction(compiledTransaction, { preflightCommitment: 'confirmed' });
 
-        // setDepositSuccess(true);
-        // setTimeout(() => {
-        //     setDepositSuccess(false);
-        // }, 5000);
-        // setDepositAmount(null);
+      // setDepositSuccess(true);
+      // setTimeout(() => {
+      //     setDepositSuccess(false);
+      // }, 5000);
+      // setDepositAmount(null);
 
-        console.log('Транзакция успешно выполнена, подпись:', signature);
-        setSuccesLock(true); 
+      console.log('Транзакция успешно выполнена, подпись:', signature);
+      setSuccesLock(true);
     } catch (error) {
-        console.error('Ошибка транзакции:', error);
+      console.error('Ошибка транзакции:', error);
     }
-};
+  };
 
   const {
     register,
@@ -72,9 +82,9 @@ const Create = () => {
     control
   } = useForm({
     defaultValues: {
-      how_much: '5000',
+      how_much: '0',
+      how_much_for_trans: '0',
       how_much_percents: '100%',
-      token: names.length > 0 ? names[0].value : '',
       day: days[0].value,
       month: monthsList[0].value,
       year: yearsList[0].value
@@ -84,16 +94,32 @@ const Create = () => {
   const watchAll = useWatch({ control });
 
   useEffect(() => {
+    setValue("how_much", currentBalance / 10 ** currentDecimals);
+    setValue("how_much_for_trans", currentBalance);
+
+
+  }, [currentToken]);
+
+
+  useEffect(() => {
+    setValue("how_much", interfaceBalance * (Number(persents.slice(0, -1)) / 100));
+    setValue("how_much_for_trans", currentBalance * (Number(persents.slice(0, -1)) / 100));
+    setValue("how_much_percents", persents);
+
+
+  }, [persents]);
+
+
+  useEffect(() => {
     setMonthsList(MONTHS);
     setYearsList(YEARS);
   }, []);
 
 
   useEffect(() => {
+    setInterfaceBalance(currentBalance / 10 ** currentDecimals);
+  }, [currentToken, persents]);
 
-    setValue("how_much", currentToken);
-  }, [currentToken]);
-  
 
   useEffect(() => {
     const currentMonth = watchAll.month ? watchAll.month : monthsList[0].value;
@@ -106,13 +132,35 @@ const Create = () => {
     ));
 
     setCurrentToken(watchAll.token);
+    setCurrentBalance(watchAll.balance);
+    setCurrentDecimals(watchAll.decimals)
+
+
   }, [watchAll]);
 
   const onSubmit = (data) => {
+    // дата должна быть в таком формате: https://timestamp.online/
+    // также нужно переделать функцию лок -> взять её из костиного кода и перенести, она будет не lock, prepareTxForLock
+    let amount; 
+    if (typeof data.how_much === 'string') {
+      amount = data.how_much * 10 ** data.decimals
+    } else { 
+      amount = data.how_much_for_trans; 
+    }
+    console.log(amount); 
+
+    console.log(data); 
     setEdit(false);
     setIsBlocked(true);
     setFormData(data);
     isMobile && scrollToTop();
+
+    // Lock(amount, date, tokenId).then(async (tx) => {
+    //   await signTransaction(tx); 
+    // })
+
+
+    
   };
 
   const extendToken = (e) => {
@@ -124,6 +172,11 @@ const Create = () => {
   const deleteToken = (e) => {
     e.preventDefault();
     window.location.reload();
+  };
+
+  const handleCustomAmountChange = (e) => {
+    setValue("how_much_percents", ''); // Очистите выбор процента, когда пользователь вводит другое число
+    setCustomAmountEntered(e.target.value.trim() !== ''); // Установите флаг, если введено любое значение
   };
 
   const getDaysInMonth = (monthsList, currentMonth, currentYear) => {
@@ -139,6 +192,17 @@ const Create = () => {
       label: day
     }));
   };
+
+  // function getArrLock() {
+  //   let amount; 
+  //   if (formData.how_much_for_trans === 0) {
+  //     amount = formData.how_much * 10 ** formData.decimals; 
+  //   } else {
+  //     amount = formData.how_much_for_trans; 
+  //   }
+  //   console.log(amount);
+  //   return;
+  // }
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -162,7 +226,7 @@ const Create = () => {
                 <div className="row">
                   <div className="col-lg-12 col-sm-7 d-flex space-between">
                     <label className='input__title'>Choose a token</label>
-                    <span className={`${styles.total} mobile`}>Total {currentToken}</span>
+                    <span className={`${styles.total} mobile`}>Total {interfaceBalance}</span>
                   </div>
                 </div>
                 <div className='row'>
@@ -170,7 +234,7 @@ const Create = () => {
                     <Controller
                       control={control}
                       name="token"
-                      defaultValue={names[0].label}
+                      defaultValue={names[0].balance}
                       render={({ field }) => (
                         <CustomSelect
                           options={names}
@@ -184,7 +248,7 @@ const Create = () => {
                     />
                   </div>
                   <div className='col-lg-5 d-flex middle-xs desktop'>
-                    <span className={styles.total}>Total {currentToken}</span>
+                    <span className={styles.total}>Total {interfaceBalance}</span>
                   </div>
                 </div>
               </div>
@@ -200,6 +264,7 @@ const Create = () => {
                       className='input input__wide'
                       disabled={isBlocked}
                       {...register("how_much")}
+                      onChange={handleCustomAmountChange}
                     />
                   </div>
                   <div className={`col-lg-5 col-sm-5 col-xs-12 d-flex middle-xs ${styles.radioBlock}`}>
@@ -211,8 +276,9 @@ const Create = () => {
                             name='radiogroup_01'
                             id={`radio_${index}`}
                             value={item}
-                            disabled={isBlocked}
+                            disabled={isBlocked || customAmountEntered} // Блокировка, если введено другое число
                             {...register("how_much_percents")}
+                            onChange={e => setPercents(e.target.value)}
                           />
                           <label htmlFor={`radio_${index}`}>{item}</label>
                         </div>
@@ -282,29 +348,30 @@ const Create = () => {
                 </div>
               </div>
 
-              { isBlocked ?
+              {isBlocked ?
                 <div className={styles.formButtons}>
-                  <Button className={styles.formButton} onClick={(e) => extendToken(e)} outline>Extend for 0.5 {currentToken}</Button>
-                  <Button className={styles.formButton} onClick={(e) => deleteToken(e)} outline>Delete for 0.5 {currentToken}</Button>
+                  <Button className={styles.formButton} onClick={(e) => extendToken(e)} outline>Extend for 0.5 of {interfaceBalance}</Button>
+                  <Button className={styles.formButton} onClick={(e) => deleteToken(e)} outline>Delete for 0.5 of {interfaceBalance}</Button>
                 </div> :
 
                 <Button
-                  icon={<AiOutlineCheckCircle />} onClick={() => {
-                    if (connected) {
-                        lockTokens();
-                    }
-                }}
+                  icon={<AiOutlineCheckCircle />}
+                //   onClick={() => {
+                //     if (connected) {
+                //         // lockTokens();
+                //     }
+                // }}
                 >
-                  {edit ? 'Extend' : 'Create'} for {currentToken}<span className={styles.token}></span>
+                  {edit ? 'Extend' : 'Create TimeLock'}<span className={styles.token}></span>
                 </Button>
               }
             </form>
           </div>
           {successLock && (
-          <div className='col-lg-5 col-xl-6'>
-            {isBlocked && formData && <Info data={formData}/>}
-          </div>
-        )}
+            <div className='col-lg-5 col-xl-6'>
+              {isBlocked && formData && <Info data={formData} />}
+            </div>
+          )}
         </div>
       </div>
     </div>

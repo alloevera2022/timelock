@@ -2,13 +2,13 @@ const PERCENTS = [
   '100%', '75%', '50%'
 ];
 
-const TOKENS =[
-  { value: "sol", label: "Solana", icon: '/token_icons/solana.svg' },
-  { value: "eth", label: "Ethereum", icon: '/token_icons/ethereum.svg' },
-  { value: "btc", label: "Bitcoin", icon: '/token_icons/btc.svg' },
-  { value: "trx", label: "Tron", icon: '/token_icons/tron.svg' },
-  { value: "usdc", label: "USD coin ", icon: '/token_icons/usdc.svg' },
-];
+// const TOKENS =[
+//   { value: "sol", label: "Solana", icon: '/token_icons/solana.svg' },
+//   { value: "eth", label: "Ethereum", icon: '/token_icons/ethereum.svg' },
+//   { value: "btc", label: "Bitcoin", icon: '/token_icons/btc.svg' },
+//   { value: "trx", label: "Tron", icon: '/token_icons/tron.svg' },
+//   { value: "usdc", label: "USD coin ", icon: '/token_icons/usdc.svg' },
+// ];
 
 const MONTHS = [
   {value: 'January', label: 'January'},
@@ -35,4 +35,4 @@ const YEARS = [
   {value: 2030, label: 2030},
 ];
 
-export { PERCENTS, TOKENS, MONTHS, YEARS };
+export { PERCENTS, MONTHS, YEARS };

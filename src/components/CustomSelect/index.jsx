@@ -80,6 +80,8 @@ const CustomSelect = (
     const newOption = options[newIndex];
     setSelectedOption(newOption);
     setValue(name, newOption.value);
+    setValue('balance', newOption.rawBalance); // Установка значения balance
+    setValue('decimals', newOption.decimals); // Установка значения decimals
   };
 
   const handlePrev = (e) => {
@@ -90,9 +92,22 @@ const CustomSelect = (
     const newOption = options[newIndex];
     setSelectedOption(newOption);
     setValue(name, newOption.value);
+    setValue('balance', newOption.rawBalance); // Установка значения balance
+    setValue('decimals', newOption.decimals); // Установка значения decimals
+
   };
 
-  // return select with inc/dec buttons
+// В CustomSelect
+const handleChange = (option) => {
+  field.onChange(option.value); // Установка значения value
+  setSelectedOption(option);
+  setValue(name, option.value);
+  setValue('balance', option.rawBalance); // Установка значения balance
+  setValue('decimals', option.decimals); // Установка значения decimals
+  
+};
+
+  // Возвращаемый JSX элемент в зависимости от настроек
   if (buttons) {
     return (
       <div className={styles.wrapper}>
@@ -109,7 +124,7 @@ const CustomSelect = (
           placeholder={"Choose"}
           options={options}
           value={options.find(option => option.value === field.value)}
-          onChange={(option) => { field.onChange(option.value); setSelectedOption(option); }}
+          onChange={handleChange}
           styles={styleWithButtons}
         />
         <button disabled={isDisabled} className={styles.button} onClick={(e) => handleNext(e)}>
@@ -117,10 +132,7 @@ const CustomSelect = (
         </button>
       </div>
     )
-  }
-
-  // return select with icons
-  if (icons) {
+  } else if (icons) {
     return (
       <Select
         {...field}
@@ -134,28 +146,27 @@ const CustomSelect = (
         placeholder={"Choose"}
         options={options}
         value={options.find(option => option.value === field.value)}
-        onChange={(option) => { field.onChange(option.value); setSelectedOption(option); }}
+        onChange={handleChange}
+        styles={style}
+      />
+    );
+  } else {
+    return (
+      <Select
+        {...field}
+        isDisabled={isDisabled}
+        components={{
+          DropdownIndicator,
+          IndicatorSeparator: () => null
+        }}
+        placeholder={"Choose"}
+        options={options}
+        value={options.find(option => option.value === field.value)}
+        onChange={handleChange}
         styles={style}
       />
     );
   }
-
-  // return default select
-  return (
-    <Select
-      {...field}
-      isDisabled={isDisabled}
-      components={{
-        DropdownIndicator,
-        IndicatorSeparator: () => null
-      }}
-      placeholder={"Choose"}
-      options={options}
-      value={options.find(option => option.value === field.value)}
-      onChange={(option) => { field.onChange(option.value); setSelectedOption(option); }}
-      styles={style}
-    />
-  );
 };
 
 export default CustomSelect;

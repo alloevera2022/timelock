@@ -33,10 +33,10 @@ export const useTableOfAssets = () => {
                         let label = el.content.metadata.name !== undefined ? el.content.metadata.name : el.id;
                         if (label.length > 18) {
                             label = `${label[0]}${label[2]}${label[2]}${label[3]}...${label[label.length - 4]}${label[label.length - 3]}${label[label.length - 2]}${label[label.length - 1]}`
-                        }
-                        const value = el.token_info.balance / 10 ** el.token_info.decimals;
+                         }
+                        
                         const icon = el.content.links.image !== undefined ? el.content.links.image : 'https://png.pngtree.com/png-clipart/20190614/original/pngtree-%EF%BB%BFcoin-gold-png-image_3724480.jpg'
-                        acc.push({ label, value, icon });
+                        acc.push({ rawBalance: el.token_info.balance, label, value: el.id, icon, decimals: el.token_info.decimals  });
                     }
                     return acc;
                 }, []);
@@ -77,7 +77,7 @@ const TableOfAssets = () => {
                                 <img src={item.icon} alt="Token Icon" style={{ width: '40px', height: '40px', marginRight: '10px', borderRadius: '50%' }} />
                                 {item.label}
                             </td>
-                            <td style={{ border: '1px solid #ddd', padding: '16px', textAlign: 'center'}}>{item.value}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '16px', textAlign: 'center'}}>{item.rawBalance / 10 ** item.decimals }</td>
                         </tr>
                     ))}
                 </tbody>
