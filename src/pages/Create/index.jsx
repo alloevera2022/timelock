@@ -3,6 +3,7 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { PERCENTS, MONTHS, YEARS } from './data';
 import { useTableOfAssets } from '../../components/TableOfAssets';
+import {createLockTransaction} from '/workspace/timelock/src/pages/Create/prepareTxForLock.js'
 import CustomSelect from "../../components/CustomSelect";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
@@ -140,29 +141,79 @@ const Create = () => {
   }, [watchAll]);
 
   const onSubmit = (data) => {
-    // дата должна быть в таком формате: https://timestamp.online/
-    // также нужно переделать функцию лок -> взять её из костиного кода и перенести, она будет не lock, prepareTxForLock
-    let amount; 
+    console.log(data);
+    let amount;
     if (typeof data.how_much === 'string') {
-      amount = data.how_much * 10 ** data.decimals
-    } else { 
-      amount = data.how_much_for_trans; 
+      amount = data.how_much * 10 ** data.decimals;
+    } else {
+      amount = data.how_much_for_trans;
     }
-    console.log(amount); 
+  
+    let month;
+    switch (data.month) {
+      case 'January':
+        month = '01';
+        break;
+      case 'February':
+        month = '02';
+        break;
+      case 'March':
+        month = '03';
+        break;
+      case 'April':
+        month = '04';
+        break;
+      case 'May':
+        month = '05';
+        break;
+      case 'June':
+        month = '06';
+        break;
+      case 'July':
+        month = '07';
+        break;
+      case 'August':
+        month = '08';
+        break;
+      case 'September':
+        month = '09';
+        break;
+      case 'October':
+        month = '10';
+        break;
+      case 'November':
+        month = '11';
+        break;
+      case 'December':
+        month = '12';
+        break;
+      default:
+        month = '01';
+    }
+  
+    const date = new Date(data.year, month - 1, data.day + 1); 
+    date.setUTCHours(0);
+    date.setUTCMinutes(0);
+    date.setUTCSeconds(0);
 
-    console.log(data); 
+    const timeStamp = date.getTime();
+    console.log(amount, timeStamp, data.token);
+
+
+    // createLockTransaction(connection, userWalletPublicKey, new PublicKey (data.token), timeStamp / 1000, amount); 
+  
+
+
     setEdit(false);
     setIsBlocked(true);
     setFormData(data);
     isMobile && scrollToTop();
-
-    // Lock(amount, date, tokenId).then(async (tx) => {
+  
+    // Lock(amount, timestamp, tokenId).then(async (tx) => {
     //   await signTransaction(tx); 
     // })
-
-
-    
   };
+  
 
   const extendToken = (e) => {
     e.preventDefault();
@@ -209,17 +260,9 @@ const Create = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
- if (names.length === 0 || days.length === 0 || monthsList.length === 0 || yearsList.length === 0) {
-   return (
-    <div>
-         <Loader />
-
-
-    </div>
-
-
-  )
- }
+  if (names.length === 0 || days.length === 0 || monthsList.length === 0 || yearsList.length === 0) {
+    return <Loader />
+  }
 
 
   return (

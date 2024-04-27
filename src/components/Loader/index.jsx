@@ -15,7 +15,7 @@ const Loader = () => {
         wrapperClass={styles.bar}
         visible={true}
       />
-      <h2>To create a lock, please connect your wallet</h2>
+      <h2 className={styles.headerloader}>To create a lock, please connect your wallet</h2>
     <WalletMultiButton></WalletMultiButton>
     </div>
   );

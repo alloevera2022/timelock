@@ -1,60 +1,183 @@
-// import React, { useState, useEffect } from 'react';
 
-// import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-// import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 // import splToken from '@solana/spl-token';
-// // import { Keypair, TransactionMessage, VersionedTransaction, Connection, ComputeBudgetProgram, SystemProgram, Transaction, TransactionInstruction, PublicKey, sendAndConfirmTransaction } from '@solana/web3.js';
 
-// import {
-//     Connection,
-//     Keypair,
-//     PublicKey,
-//     TransactionInstruction,
-//     SystemProgram,
-//     TransactionMessage,
-//     VersionedTransaction
-// } from '@solana/web3.js';
-
-// async function Lock({tokenId, amount, date, persents}) {
-//     const connection = new Connection('https://api.devnet.solana.com/', 'confirmed');
-//     const LOCKER_PROGRAM = new PublicKey("4nGizfnLQnPhFM4tkEeXpSXB2iifBNfNNdX8g963DZNh");
-//     const { publicKey: userWalletPublicKey, sendTransaction, signTransaction, connected } = useWallet();
-
-//     const [nextIndex, setNextIndex] = useState(); 
-//     const [nextLockAddress,setNextLockAddress] = useState();
-//     const [nextLockBump, setNextLockBump] = useState();
+import {
+    Connection,
+    Keypair,
+    PublicKey,
+    TransactionInstruction,
+    SystemProgram,
+    TransactionMessage,
+    VersionedTransaction
+} from '@solana/web3.js';
 
 
 
-//     function getLockAuthorityAndBump() {
-//         return PublicKey.findProgramAddressSync([Buffer.from("authority")], LOCKER_PROGRAM);
-//     };
+    const connection = new Connection('https://api.devnet.solana.com/', 'confirmed');
+    const LOCKER_PROGRAM = new PublicKey("4nGizfnLQnPhFM4tkEeXpSXB2iifBNfNNdX8g963DZNh");
 
-//     function getTokenAccountAddressForLock({ wallet, index }) {
-//         const indexStorageBuffer = Buffer.alloc(4);
-//         indexStorageBuffer.writeUInt32LE(index);
-//         return PublicKey.findProgramAddressSync([
-//             Buffer.from("token_account"),
-//             wallet.toBuffer(),
-//             indexStorageBuffer,]
-//             , LOCKER_PROGRAM);
-//     }
 
-//     console.log(getTokenAccountAddressForLock({wallet: userWalletPublicKey, index: 1}));
+
+    function getLockAuthorityAndBump() {
+        return PublicKey.findProgramAddressSync([Buffer.from("authority")], LOCKER_PROGRAM);
+    };
+ 
+
+    function getTokenAccountAddressForLock({ wallet, index }) {
+        const indexStorageBuffer = Buffer.alloc(4);
+        indexStorageBuffer.writeUInt32LE(index);
+        return PublicKey.findProgramAddressSync([
+            Buffer.from("token_account"),
+            wallet.toBuffer(),
+            indexStorageBuffer,]
+            , LOCKER_PROGRAM);
+    }
+
+
+
+    function getLockAddressByIndex({ wallet, index }) {
+
+        const indexStorageBuffer = Buffer.alloc(4);
+        indexStorageBuffer.writeUInt32LE(index);
+        return PublicKey.findProgramAddressSync([
+            wallet.toBuffer(),
+            indexStorageBuffer,
+        ], LOCKER_PROGRAM);
+        
+    }
+
+    // async function findFirstEmptyLock({ wallet }) {
+    //             let queryRangeBegin = 0;
+    //             const queryStep = 10;
+    //             const indexStorageBuffer = Buffer.alloc(4);
+        
+    //             while (true) {
+    //                 const accountsToCheck = (
+    //                     new Array(queryStep)).fill(0).map((_, i) => {
+        
+    //                         return getLockAddressByIndex({
+    //                             wallet,
+    //                             index: queryRangeBegin + i
+    //                         });
+                            
+    //                     })
+    //                 console.log('Checking accounts', accountsToCheck.map(a => a[0].toBase58()).join(', '));
+        
+        
+        //             const accountInfos = await connection.getMultipleAccountsInfo(accountsToCheck.map(a => a[0]));
+        //             console.log(accountInfos);
+        //             for (let i = 0; i < accountInfos.length; i++) {
+        //                 const accountInfo = accountInfos[i];
+        //                 if (accountInfo === null) {
+        //                     setNextIndex(queryRangeBegin + i);
+        //                     setNextLockAddress(accountsToCheck[i][0]);
+        //                     setNextLockBump(accountsToCheck[i][1]);
+        //                     return;
+        //                 }
+        //             }
+        //             queryRangeBegin += queryStep;
+        //         }
+        
+        //     }
+        //     useEffect(()=> {
+        //         if (!userWalletPublicKey){
+        //             return;}
+        //         findFirstEmptyLock({wallet: userWalletPublicKey})
+        //     },
+        //    [userWalletPublicKey])
+
+
+        //    async function findFirstEmptyLock({ wallet }) {
+        //     let queryRangeBegin = 0;
+        //     const queryStep = 10;
+        //     const indexStorageBuffer = Buffer.alloc(4);
+        
+        //     while (true) {
+        //         const accountsToCheck = (new Array(queryStep)).fill(0).map((_, i) => {
+        //             return getLockAddressByIndex({ wallet, index: queryRangeBegin + i });
+        //         });
+        
+        //         console.log('Checking accounts', accountsToCheck.map(a => a[0].toBase58()).join(', '));
+        
+        //         const accountInfos = await connection.getMultipleAccountsInfo(accountsToCheck.map(a => a[0]));
+        
+        //         for (let i = 0; i < accountInfos.length; i++) {
+        //             const accountInfo = accountInfos[i];
+        //             if (accountInfo === null) {
+        //                 nextIndex = queryRangeBegin + i;
+        //                 [nextLockAddress, nextLockBump] = accountsToCheck[i];
+        //                 return [nextIndex, nextLockAddress, nextLockBump];
+        //             }
+        //         }
+        
+        //         queryRangeBegin += queryStep;
+        //     }
+        // }
+
+
+// нужно пофиксить функцию выше findFirstEmptyLock
+
+
+// export async function createLockTransaction (connection, userWalletPublicKey, tokenMint, lockExperationDate, amount) {
+//     console.log(connection, userWalletPublicKey, tokenMint, lockExperationDate, amount);
   
+//     const [authority, authorityBump] = getLockAuthorityAndBump();
+//     const [nextIndex, nextLockAddress, nextLockBump] = await findFirstEmptyLock({ wallet: userWalletPublicKey });
+//     return; 
+//     console.log('Next lock index for', wallet.publicKey.toBase58(), 'is', nextIndex, '/', nextLockAddress.toBase58(), '/', nextLockBump);
+
+//     const indexStorageBuffer = Buffer.alloc(4);
+//     indexStorageBuffer.writeUInt32LE(nextIndex);
+
+//     const [lockTokenAccount, lockTokenAccountBump] = getTokenAccountAddressForLock({ wallet, index: nextIndex });
+//     console.log('Token account for the next lock is', lockTokenAccount.toBase58(), '/', lockTokenAccountBump);
+
+//     const mintInfo = await connection.getAccountInfo(tokenMint);    
 
 
-//     function getLockAddressByIndex({ wallet, index }) {
+//     const data = Buffer.alloc(25);
+//     data.writeUInt8(0, 0); // Instruction: create lock
+//     data.writeBigUint64LE(amount, 1); // Amount
+//     data.writeBigUint64LE(BigInt(lockExperationDate), 9); // Заменил верхний код, добавив lockExperationDate
+//     data.writeUint32LE(nextIndex, 17); // Lock index
+//     data.writeUInt8(nextLockBump, 21); // Info account bump
+//     data.writeUInt8(authorityBump, 22); // Authority bump
+//     data.writeUInt8(lockTokenAccountBump, 23); // Authority bump
+//     data.writeUInt8(splToken.MintLayout.decode(mintInfo.data).decimals, 24); // Mint decimals (for extra security)
 
-//         const indexStorageBuffer = Buffer.alloc(4);
-//         indexStorageBuffer.writeUInt32LE(index);
-//         return PublicKey.findProgramAddressSync([
-//             wallet.toBuffer(),
-//             indexStorageBuffer,
-//         ], LOCKER_PROGRAM);
-//     }
 
-//     console.log(getLockAddressByIndex({wallet: userWalletPublicKey, index: 1}));
+//     const createLockInstruction = new TransactionInstruction({
+//         keys: [
+//             { pubkey: nextLockAddress, isSigner: false, isWritable: true },
+//             { pubkey: ata, isSigner: false, isWritable: true },
+//             { pubkey: lockTokenAccount, isSigner: false, isWritable: true },
+//             { pubkey: userWalletPublicKey, isSigner: true, isWritable: true }, // добавил userWalletPublicKey
+//             { pubkey: authority, isSigner: false, isWritable: false },
+//             { pubkey: authority /* fee info */, isSigner: false, isWritable: false },
+//             { pubkey: tokenMint.publicKey, isSigner: false, isWritable: false },
+//             { pubkey: mintInfo.owner, isSigner: false, isWritable: false },
+//             { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+//         ],
+//         programId: LOCKER_PROGRAM,
+//         data,
+//     });
+
+
+//     const message = new TransactionMessage({
+//         instructions: [createLockInstruction],
+//         payerKey: userWalletPublicKey, // добавил userWalletPublicKey
+//         recentBlockhash: (await connection.getLatestBlockhash('finalized')).blockhash,
+//     }).compileToV0Message();
+    
+
+//     const tx = new VersionedTransaction(message);
+
+//         }
+
+// end 
+
+
+
 
 
 
