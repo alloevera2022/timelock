@@ -1,5 +1,4 @@
-
-// import splToken from '@solana/spl-token';
+import splToken from '@solana/spl-token';
 
 import {
     Connection,
@@ -12,119 +11,82 @@ import {
 } from '@solana/web3.js';
 
 
-
-    const connection = new Connection('https://api.devnet.solana.com/', 'confirmed');
-    const LOCKER_PROGRAM = new PublicKey("4nGizfnLQnPhFM4tkEeXpSXB2iifBNfNNdX8g963DZNh");
+const LOCKER_PROGRAM = new PublicKey("4nGizfnLQnPhFM4tkEeXpSXB2iifBNfNNdX8g963DZNh");
 
 
 
-    function getLockAuthorityAndBump() {
-        return PublicKey.findProgramAddressSync([Buffer.from("authority")], LOCKER_PROGRAM);
-    };
+function getLockAuthorityAndBump() {
+    return PublicKey.findProgramAddressSync([Buffer.from("authority")], LOCKER_PROGRAM);
+};
  
 
-    function getTokenAccountAddressForLock({ wallet, index }) {
-        const indexStorageBuffer = Buffer.alloc(4);
-        indexStorageBuffer.writeUInt32LE(index);
-        return PublicKey.findProgramAddressSync([
-            Buffer.from("token_account"),
-            wallet.toBuffer(),
-            indexStorageBuffer,]
-            , LOCKER_PROGRAM);
+function getTokenAccountAddressForLock({ wallet, index }) {
+    const indexStorageBuffer = Buffer.alloc(4);
+    indexStorageBuffer.writeUInt32LE(index);
+    return PublicKey.findProgramAddressSync([
+        Buffer.from("token_account"),
+        wallet.toBuffer(),
+        indexStorageBuffer,]
+        , LOCKER_PROGRAM);
+}
+
+
+
+function getLockAddressByIndex({ wallet, index }) {
+    const indexStorageBuffer = Buffer.alloc(4);
+    indexStorageBuffer.writeUInt32LE(index);
+    return PublicKey.findProgramAddressSync([
+        wallet.toBuffer(),
+        indexStorageBuffer,
+    ], LOCKER_PROGRAM);
+    
+}
+
+async function findFirstEmptyLock({ connection, wallet }) {
+    let queryRangeBegin = 0;
+    const queryStep = 10;
+    const indexStorageBuffer = Buffer.alloc(4);
+
+    while (true) {
+        const accountsToCheck = (new Array(queryStep)).fill(0).map((_, i) => {
+            return getLockAddressByIndex({ wallet, index: queryRangeBegin + i });
+        });
+
+        console.log('Checking accounts', accountsToCheck.map(a => a[0].toBase58()).join(', '));
+
+        const accountInfos = await connection.getMultipleAccountsInfo(accountsToCheck.map(a => a[0]));
+
+        for (let i = 0; i < accountInfos.length; i++) {
+            const accountInfo = accountInfos[i];
+            if (accountInfo === null) {
+                const nextIndex = queryRangeBegin + i;
+                const [nextLockAddress, nextLockBump] = accountsToCheck[i];
+                return [nextIndex, nextLockAddress, nextLockBump];
+            }
+        }
+
+        queryRangeBegin += queryStep;
     }
+}
 
-
-
-    function getLockAddressByIndex({ wallet, index }) {
-
-        const indexStorageBuffer = Buffer.alloc(4);
-        indexStorageBuffer.writeUInt32LE(index);
-        return PublicKey.findProgramAddressSync([
-            wallet.toBuffer(),
-            indexStorageBuffer,
-        ], LOCKER_PROGRAM);
-        
-    }
-
-    // async function findFirstEmptyLock({ wallet }) {
-    //             let queryRangeBegin = 0;
-    //             const queryStep = 10;
-    //             const indexStorageBuffer = Buffer.alloc(4);
-        
-    //             while (true) {
-    //                 const accountsToCheck = (
-    //                     new Array(queryStep)).fill(0).map((_, i) => {
-        
-    //                         return getLockAddressByIndex({
-    //                             wallet,
-    //                             index: queryRangeBegin + i
-    //                         });
-                            
-    //                     })
-    //                 console.log('Checking accounts', accountsToCheck.map(a => a[0].toBase58()).join(', '));
-        
-        
-        //             const accountInfos = await connection.getMultipleAccountsInfo(accountsToCheck.map(a => a[0]));
-        //             console.log(accountInfos);
-        //             for (let i = 0; i < accountInfos.length; i++) {
-        //                 const accountInfo = accountInfos[i];
-        //                 if (accountInfo === null) {
-        //                     setNextIndex(queryRangeBegin + i);
-        //                     setNextLockAddress(accountsToCheck[i][0]);
-        //                     setNextLockBump(accountsToCheck[i][1]);
-        //                     return;
-        //                 }
-        //             }
-        //             queryRangeBegin += queryStep;
-        //         }
-        
-        //     }
-        //     useEffect(()=> {
-        //         if (!userWalletPublicKey){
-        //             return;}
-        //         findFirstEmptyLock({wallet: userWalletPublicKey})
-        //     },
-        //    [userWalletPublicKey])
-
-
-        //    async function findFirstEmptyLock({ wallet }) {
-        //     let queryRangeBegin = 0;
-        //     const queryStep = 10;
-        //     const indexStorageBuffer = Buffer.alloc(4);
-        
-        //     while (true) {
-        //         const accountsToCheck = (new Array(queryStep)).fill(0).map((_, i) => {
-        //             return getLockAddressByIndex({ wallet, index: queryRangeBegin + i });
-        //         });
-        
-        //         console.log('Checking accounts', accountsToCheck.map(a => a[0].toBase58()).join(', '));
-        
-        //         const accountInfos = await connection.getMultipleAccountsInfo(accountsToCheck.map(a => a[0]));
-        
-        //         for (let i = 0; i < accountInfos.length; i++) {
-        //             const accountInfo = accountInfos[i];
-        //             if (accountInfo === null) {
-        //                 nextIndex = queryRangeBegin + i;
-        //                 [nextLockAddress, nextLockBump] = accountsToCheck[i];
-        //                 return [nextIndex, nextLockAddress, nextLockBump];
-        //             }
-        //         }
-        
-        //         queryRangeBegin += queryStep;
-        //     }
-        // }
-
-
-// нужно пофиксить функцию выше findFirstEmptyLock
-
-
-// export async function createLockTransaction (connection, userWalletPublicKey, tokenMint, lockExperationDate, amount) {
-//     console.log(connection, userWalletPublicKey, tokenMint, lockExperationDate, amount);
-  
-//     const [authority, authorityBump] = getLockAuthorityAndBump();
-//     const [nextIndex, nextLockAddress, nextLockBump] = await findFirstEmptyLock({ wallet: userWalletPublicKey });
-//     return; 
-//     console.log('Next lock index for', wallet.publicKey.toBase58(), 'is', nextIndex, '/', nextLockAddress.toBase58(), '/', nextLockBump);
+/**
+ * Prepares a transaction for creating a lock.
+ *
+ * @param {Connection} connection - The connection to use.
+ * @param {PublicKey} userWalletPublicKey - The public key of the user's wallet.
+ * @param {PublicKey} tokenMint - The public key of the token mint.
+ * @param {number} lockExperationDate - The expiration date of the lock.
+ * @param {number} amount - The amount of tokens to lock.
+ * @returns {Promise<void>} - A promise that resolves when the lock transaction is created.
+ */
+export async function createLockTransaction(connection, userWalletPublicKey, tokenMint, lockExperationDate, amount) {
+    console.log(connection, userWalletPublicKey, tokenMint, lockExperationDate, amount);
+    
+    const [authority, authorityBump] = getLockAuthorityAndBump();
+    const [nextIndex, nextLockAddress, nextLockBump] = await findFirstEmptyLock({ connection, wallet: userWalletPublicKey });
+    console.log('Next lock index for', userWalletPublicKey.toBase58(), 'is', nextIndex, '/', nextLockAddress.toBase58(), '/', nextLockBump);
+    return; 
+}
 
 //     const indexStorageBuffer = Buffer.alloc(4);
 //     indexStorageBuffer.writeUInt32LE(nextIndex);

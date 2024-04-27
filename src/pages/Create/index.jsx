@@ -3,7 +3,7 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { PERCENTS, MONTHS, YEARS } from './data';
 import { useTableOfAssets } from '../../components/TableOfAssets';
-import {createLockTransaction} from '/workspace/timelock/src/pages/Create/prepareTxForLock.js'
+import {createLockTransaction} from './prepareTxForLock.js'
 import CustomSelect from "../../components/CustomSelect";
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
@@ -200,7 +200,7 @@ const Create = () => {
     console.log(amount, timeStamp, data.token);
 
 
-    // createLockTransaction(connection, userWalletPublicKey, new PublicKey (data.token), timeStamp / 1000, amount); 
+    createLockTransaction(connection, userWalletPublicKey, new PublicKey (data.token), timeStamp / 1000, amount); 
   
 
 
