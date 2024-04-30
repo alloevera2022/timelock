@@ -79,33 +79,50 @@ async function findFirstEmptyLock({ connection, wallet }) {
  * @param {number} amount - The amount of tokens to lock.
  * @returns {Promise<void>} - A promise that resolves when the lock transaction is created.
  */
+
+
 export async function createLockTransaction(connection, userWalletPublicKey, tokenMint, lockExperationDate, amount) {
     console.log(connection, userWalletPublicKey, tokenMint, lockExperationDate, amount);
     
     const [authority, authorityBump] = getLockAuthorityAndBump();
     const [nextIndex, nextLockAddress, nextLockBump] = await findFirstEmptyLock({ connection, wallet: userWalletPublicKey });
-    console.log('Next lock index for', userWalletPublicKey.toBase58(), 'is', nextIndex, '/', nextLockAddress.toBase58(), '/', nextLockBump);
+    console.log('Next lock index for', userWalletPublicKey.toBase58(), 'is', nextIndex, '/', nextLockAddress.toBase58(), '/', nextLockBump);  
+    
+    const indexStorageBuffer = Buffer.alloc(4);
+    indexStorageBuffer.writeUInt32LE(nextIndex);
+
+    const [lockTokenAccount, lockTokenAccountBump] = getTokenAccountAddressForLock({ wallet: userWalletPublicKey, index: nextIndex });
+    console.log('Token account for the next lock is', lockTokenAccount.toBase58(), '/', lockTokenAccountBump);
+
+    
+    const mintInfo = await connection.getAccountInfo(tokenMint); 
+    
+    const data = Buffer.alloc(25);
+
+    data.writeUInt8(0, 0); // Instruction: create lock
+
+    // eslint-disable-next-line no-undef
+    data.writeBigUInt64LE(BigInt(amount), 1);
+
+    // eslint-disable-next-line no-undef
+    data.writeBigUInt64LE(BigInt(lockExperationDate), 9);
+
+    data.writeUint32LE(nextIndex, 17); // Lock index
+    data.writeUInt8(nextLockBump, 21); // Info account bump
+    data.writeUInt8(authorityBump, 22); // Authority bump
+    data.writeUInt8(lockTokenAccountBump, 23); // Authority bump
+
+    // Проблема тут, в строке ниже не смог разобраться :( 
+    // data.writeUInt8(splToken.MintLayout.decode(mintInfo.data).decimals, 24); // Mint decimals (for extra security)
+
     return; 
+
 }
 
-//     const indexStorageBuffer = Buffer.alloc(4);
-//     indexStorageBuffer.writeUInt32LE(nextIndex);
-
-//     const [lockTokenAccount, lockTokenAccountBump] = getTokenAccountAddressForLock({ wallet, index: nextIndex });
-//     console.log('Token account for the next lock is', lockTokenAccount.toBase58(), '/', lockTokenAccountBump);
-
-//     const mintInfo = await connection.getAccountInfo(tokenMint);    
+//       
 
 
-//     const data = Buffer.alloc(25);
-//     data.writeUInt8(0, 0); // Instruction: create lock
-//     data.writeBigUint64LE(amount, 1); // Amount
-//     data.writeBigUint64LE(BigInt(lockExperationDate), 9); // Заменил верхний код, добавив lockExperationDate
-//     data.writeUint32LE(nextIndex, 17); // Lock index
-//     data.writeUInt8(nextLockBump, 21); // Info account bump
-//     data.writeUInt8(authorityBump, 22); // Authority bump
-//     data.writeUInt8(lockTokenAccountBump, 23); // Authority bump
-//     data.writeUInt8(splToken.MintLayout.decode(mintInfo.data).decimals, 24); // Mint decimals (for extra security)
+ // Mint decimals (for extra security)
 
 
 //     const createLockInstruction = new TransactionInstruction({
