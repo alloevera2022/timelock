@@ -1,4 +1,5 @@
-import splToken from '@solana/spl-token';
+import { MintLayout } from '@solana/spl-token';
+
 
 import {
     Connection,
@@ -111,49 +112,38 @@ export async function createLockTransaction(connection, userWalletPublicKey, tok
     data.writeUInt8(nextLockBump, 21); // Info account bump
     data.writeUInt8(authorityBump, 22); // Authority bump
     data.writeUInt8(lockTokenAccountBump, 23); // Authority bump
+    data.writeUInt8(MintLayout.decode(mintInfo.data).decimals, 24); // Mint decimals (for extra security)
+    
 
-    // Проблема тут, в строке ниже не смог разобраться :( 
-    // data.writeUInt8(splToken.MintLayout.decode(mintInfo.data).decimals, 24); // Mint decimals (for extra security)
 
-    return; 
+        const createLockInstruction = new TransactionInstruction({
+        keys: [
+            { pubkey: nextLockAddress, isSigner: false, isWritable: true },
+            { pubkey: data, isSigner: false, isWritable: true },
+            { pubkey: lockTokenAccount, isSigner: false, isWritable: true },
+            { pubkey: userWalletPublicKey, isSigner: true, isWritable: true }, // добавил userWalletPublicKey
+            { pubkey: authority, isSigner: false, isWritable: false },
+            { pubkey: authority /* fee info */, isSigner: false, isWritable: false },
+            { pubkey: tokenMint.publicKey, isSigner: false, isWritable: false },
+            { pubkey: mintInfo.owner, isSigner: false, isWritable: false },
+            { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        ],
+        programId: LOCKER_PROGRAM,
+        data,
+    });
+
+        const message = new TransactionMessage({
+        instructions: [createLockInstruction],
+        payerKey: userWalletPublicKey, // добавил userWalletPublicKey
+        recentBlockhash: (await connection.getLatestBlockhash('finalized')).blockhash,
+    }).compileToV0Message();
+
+        const tx = new VersionedTransaction(message);
+
+    console.log(tx);
 
 }
 
-//       
-
-
- // Mint decimals (for extra security)
-
-
-//     const createLockInstruction = new TransactionInstruction({
-//         keys: [
-//             { pubkey: nextLockAddress, isSigner: false, isWritable: true },
-//             { pubkey: ata, isSigner: false, isWritable: true },
-//             { pubkey: lockTokenAccount, isSigner: false, isWritable: true },
-//             { pubkey: userWalletPublicKey, isSigner: true, isWritable: true }, // добавил userWalletPublicKey
-//             { pubkey: authority, isSigner: false, isWritable: false },
-//             { pubkey: authority /* fee info */, isSigner: false, isWritable: false },
-//             { pubkey: tokenMint.publicKey, isSigner: false, isWritable: false },
-//             { pubkey: mintInfo.owner, isSigner: false, isWritable: false },
-//             { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-//         ],
-//         programId: LOCKER_PROGRAM,
-//         data,
-//     });
-
-
-//     const message = new TransactionMessage({
-//         instructions: [createLockInstruction],
-//         payerKey: userWalletPublicKey, // добавил userWalletPublicKey
-//         recentBlockhash: (await connection.getLatestBlockhash('finalized')).blockhash,
-//     }).compileToV0Message();
-    
-
-//     const tx = new VersionedTransaction(message);
-
-//         }
-
-// end 
 
 
 
